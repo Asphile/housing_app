@@ -38,8 +38,8 @@ def index():
 
 @main.route('/health')
 def health():
-    """Health check endpoint for monitoring."""
-    return {'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()}
+    """Health check endpoint for Render"""
+    return {'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()}, 200
 
 @main.route('/dashboard')
 @login_required
