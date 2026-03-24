@@ -40,9 +40,14 @@ def create_app():
         app.config['SQLALCHEMY_DATABASE_URI'] = database_url
         app.logger.info("Using DATABASE_URL from environment")
     else:
-        # For Render, use a persistent SQLite location
-        db_path = os.path.join(os.path.dirname(app.instance_path), 'site.db')
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        # For Render, use a persistent SQLite location in /tmp
+        if os.environ.get('RENDER'):
+            db_path = '/tmp/site.db'
+            os.makedirs('/tmp', exist_ok=True)
+        else:
+            db_path = os.path.join(os.path.dirname(app.instance_path), 'site.db')
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        
         app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
         app.logger.info(f"Using SQLite database at: {db_path}")
     

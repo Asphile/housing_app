@@ -41,10 +41,26 @@ def index():
         # Fallback to showing index page if there's any error
         return render_template('index.html')
 
-@main.route('/health')
-def health():
-    """Health check endpoint for Render"""
-    return {'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()}, 200
+@main.route('/debug')
+def debug():
+    """Debug endpoint to check app status"""
+    try:
+        from app.models.user import User
+        user_count = User.query.count()
+        return f"""
+        <h1>Debug Info</h1>
+        <p>App Status: Running</p>
+        <p>Database: Connected</p>
+        <p>User Count: {user_count}</p>
+        <p>Time: {datetime.utcnow()}</p>
+        """
+    except Exception as e:
+        return f"""
+        <h1>Debug Info</h1>
+        <p>App Status: Error</p>
+        <p>Error: {str(e)}</p>
+        <p>Time: {datetime.utcnow()}</p>
+        """, 500
 
 @main.route('/dashboard')
 @login_required
