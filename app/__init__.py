@@ -89,9 +89,14 @@ def create_app():
             except Exception as e:
                 app.logger.error(f"Error loading user {user_id}: {e}")
                 return None
-            
-        # Optional: Creates the database file if it doesn't exist
-        # db.create_all() 
+        
+        # Create all database tables
+        try:
+            db.create_all()
+            app.logger.info("Database tables created successfully")
+        except Exception as e:
+            app.logger.error(f"Database initialization error: {e}")
+            # Don't fail app startup on DB errors - let it try to run
 
     app.logger.info("Flask app created successfully")
     return app

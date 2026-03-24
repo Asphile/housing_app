@@ -24,30 +24,9 @@ except Exception as e:
     sys.exit(1)
 
 # --- DATABASE INITIALIZATION ---
-# Only initialize database when running in production (with Gunicorn)
-# or when explicitly running the script directly
-is_production = 'gunicorn' in os.environ.get('_', '') or os.environ.get('RENDER') == 'true'
-logger.info(f"Environment check - Production mode: {is_production}")
-
-if __name__ == '__main__' or is_production:
-    logger.info("Initializing database...")
-    with app.app_context():
-        try:
-            # Import all models to ensure they're registered
-            from app.models.user import User
-            from app.models.housing import RoommatePreferences, HousingListing, RoomApplication, Allocation
-            
-            db.create_all()
-            logger.info("Database tables created successfully")
-            print("\n" + "*"*30)
-            print("DATABASE SYNCED SUCCESSFULLY")
-            print("*"*30 + "\n")
-        except Exception as db_err:
-            logger.error(f"Database Initialization Error: {db_err}")
-            print(f"Database Initialization Error: {db_err}")
-            # Don't exit on DB errors in production - let the app try to start
-            if __name__ == '__main__':
-                sys.exit(1)
+# Database tables are now created in create_app() during app initialization
+# This ensures tables exist before any routes are accessed
+logger.info("Database initialization handled in app factory")
 
 if __name__ == '__main__':
     # We use '0.0.0.0' so you can test on local network devices
