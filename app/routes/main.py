@@ -36,6 +36,11 @@ def index():
         return redirect(url_for('main.dashboard'))
     return render_template('index.html')
 
+@main.route('/health')
+def health():
+    """Health check endpoint for monitoring."""
+    return {'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()}
+
 @main.route('/dashboard')
 @login_required
 def dashboard():

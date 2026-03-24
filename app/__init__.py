@@ -26,21 +26,37 @@ def create_app():
     """
     app = Flask(__name__)
     
+    # Enable logging
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    app.logger.info("Starting DUT Housing App...")
+    
     # 2. CORE SYSTEM CONFIGURATION
-    app.config['SECRET_KEY'] = 'dev_key_2026_student_housing_portal'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_key_2026_student_housing_portal')
+    
+    # Database configuration - use environment variable or fallback to SQLite
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+        app.logger.info("Using DATABASE_URL from environment")
+    else:
+        # For Render, use a persistent SQLite location
+        db_path = os.path.join(os.path.dirname(app.instance_path), 'site.db')
+        app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+        app.logger.info(f"Using SQLite database at: {db_path}")
+    
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # 3. GMAIL EMAIL CONFIGURATION
-    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-    app.config['MAIL_PORT'] = 587
-    app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USE_SSL'] = False
+    app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+    app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true'
+    app.config['MAIL_USE_SSL'] = os.environ.get('MAIL_USE_SSL', 'False').lower() == 'true'
     
     # Credentials
-    app.config['MAIL_USERNAME'] = 'asphilelubanyana@gmail.com'
-    app.config['MAIL_PASSWORD'] = 'gzwlwgfnpoxqtmod' 
-    app.config['MAIL_DEFAULT_SENDER'] = ('DUT Student Housing', 'asphilelubanyana@gmail.com')
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'asphilelubanyana@gmail.com')
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'gzwlwgfnpoxqtmod')
+    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', ('DUT Student Housing', 'asphilelubanyana@gmail.com'))
 
     # 4. BINDING EXTENSIONS TO APP INSTANCE
     # This "attaches" the global objects to this specific app
