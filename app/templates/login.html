@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --dark-navy: #0f172a;
+        --slate-500: #64748b;
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+        /* Professional Mesh Gradient Background */
+        background-color: #f8fafc;
+        background-image: 
+            radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.05) 0px, transparent 50%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    /* Modern Card Elevation */
+    .card {
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 20px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+        transition: var(--transition);
+        margin-top: 8vh !important;
+    }
+
+    /* Subtle Hover Effect to show quality */
+    .card:hover {
+        box-shadow: 0 30px 60px -15px rgba(37, 99, 235, 0.12);
+        transform: translateY(-2px);
+    }
+
+    /* Typography Polish */
+    h2 {
+        color: var(--dark-navy);
+        font-weight: 800;
+        letter-spacing: -1px;
+        position: relative;
+    }
+
+    /* Decorative element under title */
+    h2::after {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: var(--primary-blue);
+        border-radius: 2px;
+        margin-top: 8px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        color: var(--slate-500);
+        margin-bottom: 8px;
+    }
+
+    /* Custom Input States */
+    .form-control-lg {
+        border-radius: 12px;
+        border: 1.5px solid #e2e8f0;
+        font-size: 0.95rem;
+        padding: 12px 16px;
+        background-color: #fcfdfe;
+        transition: var(--transition);
+    }
+
+    .form-control-lg:focus {
+        border-color: var(--primary-blue);
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        transform: scale(1.01);
+    }
+    
+    /* Email helper text styling */
+    .form-text {
+        font-size: 0.8rem;
+        color: var(--slate-500);
+        margin-top: 6px;
+    }
+
+    /* High-Performance Button Styling */
+    .btn-primary {
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 14px;
+        letter-spacing: 0.01em;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        transition: var(--transition);
+    }
+
+    .btn-primary:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+        transform: scale(0.98);
+    }
+
+    /* Footer Polishing */
+    .text-muted {
+        font-size: 0.9rem;
+    }
+
+    .text-decoration-none {
+        color: var(--primary-blue);
+        font-weight: 700;
+        transition: var(--transition);
+    }
+
+    .text-decoration-none:hover {
+        color: #1d4ed8;
+        text-decoration: underline !important;
+    }
+
+    hr {
+        border-top: 1.5px solid #f1f5f9;
+        margin: 2rem 0;
+    }
+
+    /* Form validation error styling */
+    .invalid-feedback {
+        font-weight: 500;
+        margin-top: 6px;
+    }
+    
+    /* Image styling */
+    .brand-logo {
+        max-height: 85px;
+        object-fit: contain;
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+        <div class="card shadow-sm border-0 mt-5">
+            <div class="card-body p-5"> 
+                
+                <div class="text-center mb-4">
+                    <img src="https://logowik.com/content/uploads/images/dut-durban-university-of-technology3991.jpg" alt="DUT Student Housing Portal" class="img-fluid brand-logo">
+                </div>
+
+                <h2 class="fw-bold mb-4">Login</h2>
+                
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-4"> 
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control form-control-lg", placeholder="student@dut4life.ac.za", pattern=".*@(dut4life\.ac\.za|dut\.ac\.za)$", title="Please use a valid @dut4life.ac.za or @dut.ac.za institutional email address.") }}
+                        <div class="form-text"><i class="fas fa-info-circle"></i> Requires an official @dut4life.ac.za or @dut.ac.za email.</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control form-control-lg", placeholder="••••••••") }}
+                        <div class="text-end mt-2">
+                          <a href="{{ url_for('auth.reset_request') }}" class="small text-decoration-none" style="font-size: 0.8rem;">Forgot Password?</a>
+                       </div>
+                    </div>
+                    
+                    <div class="d-grid mt-5">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+                
+                <hr>
+                
+                <p class="text-center text-muted mb-0">
+                    New to the portal? 
+                    <a href="{{ url_for('auth.register') }}" class="text-decoration-none">Create an Account</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

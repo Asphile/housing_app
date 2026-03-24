@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-9">
+            
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden mb-4 text-center bg-white py-5">
+                <div class="mb-3 position-relative d-inline-block">
+                    {% if student.image_file %}
+                        <img src="{{ url_for('static', filename='uploads/profile_pics/' + student.image_file) }}" 
+                             class="rounded-circle shadow-sm border border-4 border-white" 
+                             style="width: 160px; height: 160px; object-fit: cover;"
+                             alt="Profile Picture">
+                    {% else %}
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto shadow-sm" style="width: 160px; height: 160px;">
+                            <i class="fas fa-user text-secondary" style="font-size: 80px;"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <h2 class="fw-bold text-dark">{{ student.full_names or student.username }}</h2>
+                <p class="text-muted mb-3">Student No: <strong>{{ student.student_number }}</strong> | {{ student.campus or 'Campus Not Assigned' }}</p>
+                
+                <div class="d-flex justify-content-center">
+                    {% if allocation %}
+                        <div class="alert alert-success border-0 rounded-pill px-4 py-2 shadow-sm d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>Allocated: <strong>{{ allocation.listing.name }}</strong> | Room: <strong>{{ allocation.room_number }}</strong></span>
+                            <a href="{{ url_for('main.proof_of_residence') }}" class="btn btn-sm btn-link text-success ms-2 p-0" title="View Proof of Residence">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <span class="badge bg-warning text-dark rounded-pill px-4 py-2 shadow-sm">
+                            <i class="fas fa-clock me-2"></i>Waiting for Allocation
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100 rounded-4 p-4">
+                        <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">
+                            <i class="fas fa-id-card me-2"></i>Student Details
+                        </h5>
+                        <div class="mb-3">
+                            <label class="small text-uppercase text-muted fw-bold">Email Address</label>
+                            <p class="mb-0 text-dark">{{ student.email }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small text-uppercase text-muted fw-bold">Identity Number</label>
+                            <p class="mb-0 text-dark">{{ student.id_number or 'Not Provided' }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small text-uppercase text-muted fw-bold">Gender</label>
+                            <p class="mb-0 text-dark">{{ student.gender or 'Not Specified' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100 rounded-4 p-4">
+                        <h5 class="fw-bold text-info mb-3 border-bottom pb-2">
+                            <i class="fas fa-graduation-cap me-2"></i>Academic Profile
+                        </h5>
+                        <div class="mb-3">
+                            <label class="small text-uppercase text-muted fw-bold">Faculty</label>
+                            <p class="mb-0 text-dark">{{ student.faculty or 'Not Specified' }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small text-uppercase text-muted fw-bold">Qualification</label>
+                            <p class="mb-0 text-dark">{{ student.qualification or 'Not Specified' }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small text-uppercase text-muted fw-bold">Home Campus</label>
+                            <p class="mb-0 text-dark">{{ student.campus or 'Not Assigned' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="card shadow-sm border-0 rounded-4 p-4 bg-light border-start border-4 border-primary">
+                        <h5 class="fw-bold text-dark mb-4"><i class="fas fa-users me-2"></i>Roommate Matching Data</h5>
+                        {% if preferences %}
+                        <div class="row g-3 text-center">
+                            <div class="col-6 col-md-3">
+                                <div class="bg-white p-3 rounded-3 shadow-sm border">
+                                    <label class="small text-muted d-block mb-1">Cleanliness</label>
+                                    <span class="badge bg-primary px-3">{{ preferences.cleanliness_level }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="bg-white p-3 rounded-3 shadow-sm border">
+                                    <label class="small text-muted d-block mb-1">Noise</label>
+                                    <span class="badge bg-primary px-3">{{ preferences.noise_tolerance }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="bg-white p-3 rounded-3 shadow-sm border">
+                                    <label class="small text-muted d-block mb-1">Sleep Schedule</label>
+                                    <span class="badge bg-primary px-3">{{ preferences.sleep_schedule }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="bg-white p-3 rounded-3 shadow-sm border">
+                                    <label class="small text-muted d-block mb-1">Study Habits</label>
+                                    <span class="badge bg-primary px-3">{{ preferences.study_habits }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info mb-0 border-0 shadow-sm">
+                            <i class="fas fa-info-circle me-2"></i>Matching preferences have not been submitted yet.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 text-center">
+                {% if not allocation %}
+                <a href="{{ url_for('main.admin_allocate') }}" class="btn btn-primary rounded-pill px-4 me-2 shadow-sm">
+                    <i class="fas fa-plus-circle me-2"></i>Assign to Residence
+                </a>
+                {% endif %}
+                <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Admin Dashboard
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4"> 
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5 fw-bold text-primary">Student Portal</h1>
+            <p class="text-muted">Welcome back, <strong>{{ current_user.username }}</strong>! Manage your housing and roommate profile.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <span class="badge bg-light text-dark border p-2">
+                <i class="far fa-calendar-alt me-1"></i> Academic Year: 2026
+            </span>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 border-start border-primary border-4">
+                <div class="card-header bg-white border-bottom-0 pt-4">
+                    <h5 class="card-title mb-0 fw-bold">
+                        <i class="fas fa-university me-2 text-primary"></i>Residence Registration Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if not current_user.student_number %}
+                        <div class="d-md-flex justify-content-between align-items-center p-4 bg-light rounded border border-warning">
+                            <div>
+                                <h6 class="text-danger fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Action Required</h6>
+                                <p class="mb-md-0 text-muted">Submit your residence registration form to become eligible for room allocation.</p>
+                            </div>
+                            <a href="{{ url_for('main.residence_registration') }}" class="btn btn-primary px-4 shadow-sm mt-3 mt-md-0">
+                                Start Registration <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="row align-items-center">
+                            <div class="col-md-2 text-center mb-3 mb-md-0">
+                                <img src="{{ url_for('static', filename='uploads/profile_pics/' + current_user.image_file) }}" 
+                                     class="img-thumbnail rounded-circle shadow-sm" 
+                                     style="width: 130px; height: 130px; object-fit: cover; border: 3px solid #198754;"
+                                     onerror="this.src='https://ui-avatars.com/api/?name={{ current_user.username }}&background=0D6EFD&color=fff';">
+                                <div class="badge bg-success mt-2"><i class="fas fa-check-circle me-1"></i>Verified Photo</div>
+                            </div>
+
+                            <div class="col-md-10">
+                                <div class="row g-3">
+                                    <div class="col-6 col-md-2">
+                                        <label class="text-muted small fw-bold text-uppercase d-block text-truncate">Student No.</label>
+                                        <span class="h6">{{ current_user.student_number }}</span>
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="text-muted small fw-bold text-uppercase d-block">Campus</label>
+                                        <span class="h6">{{ current_user.campus }}</span>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <label class="text-muted small fw-bold text-uppercase d-block">Faculty</label>
+                                        <span class="h6 text-capitalize">{{ current_user.faculty or 'Not Set' }}</span>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <label class="text-muted small fw-bold text-uppercase d-block">Qualification</label>
+                                        <span class="h6 d-inline-block text-truncate w-100">{{ current_user.qualification or 'Data Pending' }}</span>
+                                    </div>
+                                    <div class="col-6 col-md-2 text-md-end">
+                                        <span class="badge bg-success py-2 px-3">
+                                            <i class="fas fa-check-double me-1"></i> Registered
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="{{ url_for('main.proof_of_residence') }}" class="btn btn-outline-secondary btn-sm me-2">
+                                        <i class="fas fa-file-pdf me-1"></i> View Proof
+                                    </a>
+                                    <a href="{{ url_for('main.residence_registration') }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-edit me-1"></i> Update Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white border-bottom-0 pt-4">
+                    <h5 class="card-title mb-0 fw-bold"><i class="fas fa-users me-2 text-info"></i>Roommate Matching</h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="text-muted small">We match you with others at <strong>{{ current_user.campus or 'your campus' }}</strong> based on lifestyle preferences.</p>
+                    
+                    {% if has_preferences %}
+                        <div class="alert alert-info py-2 mb-3 border-0 bg-info bg-opacity-10 text-info">
+                            <i class="fas fa-user-check me-2"></i><strong>Profile Active:</strong> Visible to potential roommates.
+                        </div>
+                        <a href="{{ url_for('main.matches') }}" class="btn btn-info text-white mt-auto shadow-sm">
+                            <i class="fas fa-search me-1"></i> Find Roommates
+                        </a>
+                    {% else %}
+                        <div class="alert alert-warning py-2 mb-3 border-0 bg-warning bg-opacity-10 text-dark">
+                            <i class="fas fa-exclamation-circle me-2"></i><strong>Incomplete:</strong> Lifestyle profile not set.
+                        </div>
+                        <a href="{{ url_for('main.preferences') }}" class="btn btn-warning mt-auto shadow-sm text-dark fw-bold">
+                            Setup Preferences
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white border-bottom-0 pt-4">
+                    <h5 class="card-title mb-0 fw-bold"><i class="fas fa-link me-2 text-secondary"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('main.browse_housing') }}" class="list-group-item list-group-item-action border-0 py-3 px-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-search me-3 text-primary"></i> Browse Available Housing</span>
+                                <i class="fas fa-chevron-right text-muted small"></i>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('main.matches') }}" class="list-group-item list-group-item-action border-0 py-3 px-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-bed me-3 text-success"></i> My Room & Roommate</span>
+                                <i class="fas fa-chevron-right text-muted small"></i>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" class="list-group-item list-group-item-action border-0 py-3 px-4 text-danger">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-sign-out-alt me-3"></i> Log Out</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

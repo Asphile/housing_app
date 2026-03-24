@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary">Available Residences</h1>
+        <p class="text-muted">Select your region to find your 2026 home</p>
+
+        <div class="mt-4">
+            <div class="btn-group shadow-sm p-1 bg-white rounded-pill" role="group">
+                <button type="button" class="btn btn-primary rounded-pill px-4 filter-btn active" data-filter="all">Show All</button>
+                <button type="button" class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="durban">Durban Campuses</button>
+                <button type="button" class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="midlands">Midlands Campuses</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4" id="housing-list">
+        {% for listing in listings %}
+        {# Logic to categorize campuses for the filter buttons #}
+        {% set durban_list = ['Steve Biko', 'Ritson', 'ML Sultan', 'City Campus', 'Brickfield'] %}
+        {% set midlands_list = ['Indumiso', 'Riverside'] %}
+        
+        {% if listing.region in durban_list %}
+            {% set category = 'durban' %}
+        {% elif listing.region in midlands_list %}
+            {% set category = 'midlands' %}
+        {% else %}
+            {% set category = 'other' %}
+        {% endif %}
+
+        <div class="col-md-6 col-lg-4 residence-item" data-category="{{ category }}">
+            <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename='uploads/residence_pics/' ~ listing.image_file)}}" 
+                         class="card-img-top" 
+                         alt="{{ listing.name }}" 
+                         style="height: 220px; object-fit: cover;"
+                         onerror="this.onerror=null;this.src='https://via.placeholder.com/400x220?text=Residence+Image';">
+                    
+                    <span class="position-absolute top-0 end-0 m-3 badge {% if listing.gender_type == 'Male' %}bg-primary{% elif listing.gender_type == 'Female' %}bg-danger{% else %}bg-dark{% endif %}">
+                        {{ listing.gender_type }}
+                    </span>
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-1">{{ listing.name }}</h5>
+                    <p class="text-muted small mb-3">
+                        <i class="fas fa-map-marker-alt text-primary me-1"></i> {{ listing.address }}
+                    </p>
+                    
+                    <div class="row mb-3 bg-light rounded p-2 g-0">
+                        <div class="col-6 border-end text-center">
+                            <small class="text-muted d-block small-text">Region</small>
+                            <span class="fw-bold small">{{ listing.region }}</span>
+                        </div>
+                        <div class="col-6 text-center">
+                            <small class="text-muted d-block small-text">Available</small>
+                            <span class="fw-bold small {% if listing.available_rooms > 0 %}text-success{% else %}text-danger{% endif %}">
+                                {{ listing.available_rooms }} / {{ listing.capacity }} Beds
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="card-text text-secondary mb-4" style="font-size: 0.9rem;">
+                        {{ listing.description[:110] }}...
+                    </p>
+
+                    <div class="d-grid gap-2">
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ (listing.name + ' ' + listing.address)|urlencode }}" 
+                           target="_blank" 
+                           class="btn btn-outline-primary rounded-pill shadow-sm">
+                            <i class="fas fa-directions me-2"></i> Find Location
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <h4 class="text-muted">No residences listed yet</h4>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="no-results" class="text-center py-5 d-none">
+        <i class="fas fa-search fa-3x text-light mb-3"></i>
+        <h4 class="text-muted">No residences found for this campus area.</h4>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.filter-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const filter = this.getAttribute('data-filter');
+        const items = document.querySelectorAll('.residence-item');
+        let visibleCount = 0;
+
+        // Update Button UI States
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('btn-primary', 'active');
+            btn.classList.add('btn-outline-primary');
+        });
+        this.classList.remove('btn-outline-primary');
+        this.classList.add('btn-primary', 'active');
+
+        // Filter Logic: Show/Hide items based on category
+        items.forEach(item => {
+            if (filter === 'all' || item.getAttribute('data-category') === filter) {
+                item.classList.remove('d-none');
+                visibleCount++;
+            } else {
+                item.classList.add('d-none');
+            }
+        });
+
+        // Toggle "No Results" message if everything is hidden
+        const noResults = document.getElementById('no-results');
+        if (visibleCount === 0) {
+            noResults.classList.remove('d-none');
+        } else {
+            noResults.classList.add('d-none');
+        }
+    });
+});
+</script>
+
+<style>
+    .small-text { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .card { transition: transform 0.2s ease, box-shadow 0.2s ease; border-radius: 15px; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+    .filter-btn { transition: all 0.3s ease; border-width: 2px !important; }
+    .badge { padding: 8px 12px; border-radius: 8px; font-weight: 600; }
+</style>
+{% endblock %}

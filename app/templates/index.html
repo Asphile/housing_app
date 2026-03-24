@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* --- Core Variables --- */
+    :root {
+        --theme-primary: #125DE6; 
+        --theme-secondary: #0EA5E9; /* Added for gradients */
+        --theme-text-dark: #0F172A; /* Slightly deeper for better contrast */
+        --theme-text-muted: #64748B; 
+        --theme-bg-light: #F8FAFC; 
+        --theme-white: #FFFFFF;
+        --theme-border: #E2E8F0;
+    }
+
+    body {
+        background-color: var(--theme-bg-light);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- Animations --- */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-up {
+        opacity: 0;
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .delay-1 { animation-delay: 0.15s; }
+    .delay-2 { animation-delay: 0.3s; }
+    .delay-3 { animation-delay: 0.45s; }
+
+    /* --- Hero Section & Background Shapes --- */
+    .hero-section {
+        position: relative;
+        padding: 100px 0 140px 0;
+        overflow: hidden;
+        background-color: var(--theme-white);
+        border-bottom: 1px solid var(--theme-border);
+    }
+
+    /* Modern blurred background blobs */
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -20%;
+        right: -10%;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(18, 93, 230, 0.08) 0%, rgba(255,255,255,0) 70%);
+        z-index: 0;
+        border-radius: 50%;
+        filter: blur(40px);
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* --- Typography --- */
+    .main-heading {
+        font-size: clamp(2.5rem, 5vw, 4.2rem);
+        font-weight: 800;
+        color: var(--theme-text-dark);
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    /* Modern Gradient Text Effect */
+    .main-heading .accent-text {
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+        display: inline-block;
+    }
+
+    .lead-text {
+        color: var(--theme-text-muted);
+        font-size: 1.15rem;
+        line-height: 1.7;
+        max-width: 550px;
+        margin-bottom: 2.5rem;
+    }
+
+    /* --- Stats Section --- */
+    .stats-row {
+        display: flex;
+        gap: 3rem;
+        margin-bottom: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--theme-border);
+    }
+
+    .stat-block h2 {
+        color: var(--theme-text-dark);
+        font-weight: 800;
+        font-size: 2.2rem;
+        margin-bottom: 0.2rem;
+        letter-spacing: -0.02em;
+    }
+
+    .stat-block p {
+        color: var(--theme-text-muted);
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* --- Buttons --- */
+    .btn-filled {
+        background-color: var(--theme-primary);
+        color: var(--theme-white);
+        padding: 14px 32px;
+        border-radius: 50px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 14px rgba(18, 93, 230, 0.15);
+    }
+    .btn-filled:hover {
+        background-color: #0c4bc4;
+        color: var(--theme-white);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(18, 93, 230, 0.25);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        color: var(--theme-text-dark);
+        padding: 12px 32px;
+        border-radius: 50px;
+        font-weight: 600;
+        border: 2px solid var(--theme-border);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .btn-outline:hover {
+        border-color: var(--theme-text-dark);
+        background-color: var(--theme-bg-light);
+        color: var(--theme-text-dark);
+    }
+
+    /* --- Image & Floating Elements --- */
+    .hero-image-container {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+        transform: perspective(1000px) rotateY(-5deg);
+        transition: transform 0.5s ease;
+    }
+    
+    .hero-image-container:hover {
+        transform: perspective(1000px) rotateY(0deg);
+    }
+
+    .hero-image-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+    }
+
+    .floating-review-card {
+        position: absolute;
+        bottom: 40px;
+        left: -40px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 24px 32px;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        text-align: center;
+        z-index: 3;
+        min-width: 180px;
+        border: 1px solid rgba(255,255,255,0.4);
+    }
+
+    .stars { color: #F59E0B; font-size: 1.2rem; margin-bottom: 8px; }
+    .rating-score { font-size: 1.7rem; font-weight: 800; color: var(--theme-text-dark); margin: 0; line-height: 1;}
+    .rating-text { font-size: 0.85rem; color: var(--theme-text-muted); font-weight: 500; margin-top: 4px; }
+
+    /* --- Feature Cards (Mentors will love these) --- */
+    .feature-card {
+        background: var(--theme-white);
+        padding: 2.5rem 2rem;
+        border-radius: 24px;
+        height: 100%;
+        border: 1px solid var(--theme-border);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        border-color: rgba(18, 93, 230, 0.2);
+    }
+
+    .feature-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background: var(--theme-bg-light);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--theme-primary);
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon-wrapper {
+        background: var(--theme-primary);
+        color: var(--theme-white);
+    }
+
+    /* --- Clean Light Footer --- */
+    .clean-footer {
+        background-color: var(--theme-white);
+        padding: 80px 0 30px;
+        border-top: 1px solid var(--theme-border);
+    }
+
+    .footer-title {
+        color: var(--theme-text-dark);
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .footer-link {
+        color: var(--theme-text-muted);
+        text-decoration: none;
+        display: block;
+        margin-bottom: 12px;
+        transition: color 0.2s;
+        font-size: 0.95rem;
+    }
+    
+    .footer-link:hover { color: var(--theme-primary); }
+
+    /* Responsive adjustments */
+    @media (max-width: 991px) {
+        .floating-review-card { left: 20px; bottom: 20px; padding: 15px 20px; }
+        .stats-row { flex-wrap: wrap; gap: 1.5rem; }
+        .hero-image-container { transform: none; margin-top: 3rem; }
+        .hero-image-container:hover { transform: none; }
+    }
+</style>
+
+<section class="hero-section">
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            
+            <div class="col-lg-6 pe-lg-5">
+                <h1 class="main-heading animate-up">
+                    Student Housing With<br>
+                    <span class="accent-text">Intelligent Care</span>
+                </h1>
+                
+                <p class="lead-text animate-up delay-1">
+                    Experience a seamless, secure, and smart way to manage your campus living. 
+                    From compatibility-based roommate matching to instant room allocations, we prioritize your comfort and success.
+                </p>
+
+                <div class="d-flex flex-wrap gap-3 mb-5 animate-up delay-2">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.dashboard') }}" class="btn-filled text-decoration-none">
+                            Access Portal
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="btn-filled text-decoration-none">
+                            Apply for Housing
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn-outline">
+                            <i class="far fa-user fs-5"></i> Student Login
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="stats-row animate-up delay-3">
+                    <div class="stat-block">
+                        <h2>150+</h2>
+                        <p>Partner Residences</p>
+                    </div>
+                    <div class="stat-block">
+                        <h2>22k+</h2>
+                        <p>Students Placed</p>
+                    </div>
+                    <div class="stat-block">
+                        <h2>24/7</h2>
+                        <p>Expert Support</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 position-relative ps-lg-4 animate-up delay-2">
+                <div class="hero-image-container">
+                    <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80" alt="Students collaborating on campus">
+                </div>
+                
+                <div class="floating-review-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="rating-score">4.9/5</p>
+                    <p class="rating-text">Verified Student Ratings</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section style="background-color: var(--theme-bg-light); padding: 100px 0;">
+    <div class="container">
+        <div class="text-center mb-5 animate-up">
+            <h2 class="fw-bold" style="color: var(--theme-text-dark);">Core System Features</h2>
+            <p class="text-muted">Designed specifically to streamline university residential operations.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4 animate-up delay-1">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <h4 class="fw-bold" style="color: var(--theme-text-dark); margin-bottom: 1rem;">Smart Matching</h4>
+                    <p class="text-muted mb-0" style="line-height: 1.6;">Our algorithm pairs you with highly compatible peers based on study habits, schedules, and lifestyle preferences.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-up delay-2">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h4 class="fw-bold" style="color: var(--theme-text-dark); margin-bottom: 1rem;">Live Allocation</h4>
+                    <p class="text-muted mb-0" style="line-height: 1.6;">View available residences across campuses in real-time and receive instant, transparent allocation updates.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-up delay-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <h4 class="fw-bold" style="color: var(--theme-text-dark); margin-bottom: 1rem;">Official Proofs</h4>
+                    <p class="text-muted mb-0" style="line-height: 1.6;">Generate secure, instant, and institution-approved Proof of Residence documents digitally at any time.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="clean-footer">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-4 mb-4 mb-lg-0 pe-lg-5">
+                <h4 class="fw-bold" style="color: var(--theme-primary); letter-spacing: -1px;">DUT Housing</h4>
+                <p class="mt-3 text-muted" style="line-height: 1.6;">
+                    Durban University of Technology.<br>
+                    Providing a creative, distinctive, and impactful living environment to foster academic excellence.
+                </p>
+                <div class="d-flex gap-3 mt-4">
+                    <a href="#" class="feature-icon-wrapper" style="width: 40px; height: 40px; font-size: 1rem;"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="feature-icon-wrapper" style="width: 40px; height: 40px; font-size: 1rem;"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="feature-icon-wrapper" style="width: 40px; height: 40px; font-size: 1rem;"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-6 mb-4 mb-lg-0">
+                <h5 class="footer-title">Departments</h5>
+                <a href="#" class="footer-link">Res Life</a>
+                <a href="#" class="footer-link">Admin Office</a>
+                <a href="#" class="footer-link">Student Support</a>
+                <a href="#" class="footer-link">Maintenance</a>
+            </div>
+            
+            <div class="col-lg-2 col-6 mb-4 mb-lg-0">
+                <h5 class="footer-title">Resources</h5>
+                <a href="#" class="footer-link">Apply Now</a>
+                <a href="#" class="footer-link">Housing Policy</a>
+                <a href="#" class="footer-link">Help & FAQ</a>
+                <a href="#" class="footer-link">Privacy Policy</a>
+            </div>
+            
+            <div class="col-lg-4">
+                <h5 class="footer-title">Contact Us</h5>
+                <p class="text-muted mb-2"><i class="fas fa-map-marker-alt me-2" style="color: var(--theme-primary); width: 20px;"></i> PO Box 47753, GREYVILLE, 4023</p>
+                <p class="text-muted mb-2"><i class="fas fa-envelope me-2" style="color: var(--theme-primary); width: 20px;"></i> housing@dut.ac.za</p>
+                <p class="text-muted mb-4"><i class="fas fa-phone-alt me-2" style="color: var(--theme-primary); width: 20px;"></i> +27 31 373 2217</p>
+                
+                <span class="badge rounded-pill" style="background-color: var(--theme-bg-light); color: var(--theme-primary); padding: 10px 20px; border: 1px solid var(--theme-border); font-weight: 600; letter-spacing: 0.5px;">
+                    ENVISION 2030
+                </span>
+            </div>
+        </div>
+        
+        <div class="text-center pt-4 border-top">
+            <p class="text-muted small mb-0">© 2026 Durban University of Technology. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-primary">Residence Allocation <span class="badge bg-dark ms-2">{{ current_year or '2026' }}</span></h2>
+            <p class="text-muted">Review your room assignment and roommate details below.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    {% if allocation %}
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-primary text-white text-center py-4">
+                {# FIXED: Changed allocation.residence to allocation.listing to match model #}
+                <h3 class="mb-0 fw-bold">{{ allocation.listing.name }}</h3>
+                <p class="mb-0 opacity-75"><i class="fas fa-map-marker-alt me-2"></i>{{ allocation.listing.address }}</p>
+                <div class="mt-2">
+                    <span class="badge bg-white text-primary fs-6 px-4 py-2 mt-2">Room: {{ allocation.room_number }}</span>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    
+                    <div class="col-md-6 border-end p-5 text-center bg-light">
+                        <h5 class="text-uppercase text-muted fw-bold mb-4" style="letter-spacing: 1px;">Your Information</h5>
+                        
+                        <div class="mb-4">
+                            {# FIXED: Changed profile_picture to image_file to match User model #}
+                            <img src="{{ url_for('static', filename='uploads/profile_pics/' + (current_user.image_file or 'default.jpg')) }}" 
+                                 class="rounded-circle shadow border border-4 border-white" 
+                                 style="width: 160px; height: 160px; object-fit: cover;">
+                        </div>
+                        <h4 class="fw-bold mb-1">{{ current_user.username }}</h4>
+                        <p class="text-primary small mb-4">Student ID: {{ current_user.student_number }}</p>
+
+                        <div class="text-start mx-auto" style="max-width: 300px;">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Campus:</span>
+                                <span class="fw-bold">{{ current_user.campus }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Faculty:</span>
+                                <span class="fw-bold">{{ current_user.faculty or 'Management Sciences' }}</span> 
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Qualification:</span>
+                                <span class="fw-bold text-truncate ms-2">{{ current_user.qualification }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 p-5 text-center">
+                        <h5 class="text-uppercase text-muted fw-bold mb-4" style="letter-spacing: 1px;">Allocated Roommate</h5>
+                        
+                        {# roommate variable must be passed from main.py #}
+                        {% if roommate %}
+                            <div class="mb-4">
+                                <img src="{{ url_for('static', filename='uploads/profile_pics/' + (roommate.image_file or 'default.jpg')) }}" 
+                                     class="rounded-circle shadow border border-4 border-white" 
+                                     style="width: 160px; height: 160px; object-fit: cover;">
+                            </div>
+                            <h4 class="fw-bold mb-1">{{ roommate.username }}</h4>
+                            <p class="text-primary small mb-4">Student ID: {{ roommate.student_number }}</p>
+
+                            <div class="text-start mx-auto" style="max-width: 300px;">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Campus:</span>
+                                    <span class="fw-bold">{{ roommate.campus or 'Not Set' }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Faculty:</span>
+                                    <span class="fw-bold">{{ roommate.faculty or 'Engineering' }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Qualification:</span>
+                                    <span class="fw-bold text-truncate ms-2">{{ roommate.qualification or 'Diploma' }}</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="py-5">
+                                <i class="fas fa-user-friends fa-4x text-muted mb-3"></i>
+                                <p class="text-muted">Single Room / No roommate assigned yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card-footer bg-white py-4 text-center border-top">
+                {% if allocation.status == 'Pending' %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <form action="{{ url_for('main.process_allocation', action='accept') }}" method="POST">
+                            <button type="submit" class="btn btn-success btn-lg px-5 shadow">
+                                <i class="fas fa-check-circle me-2"></i> Accept Allocation
+                            </button>
+                        </form>
+                        <form action="{{ url_for('main.process_allocation', action='decline') }}" method="POST">
+                            <button type="submit" class="btn btn-outline-danger btn-lg px-5 shadow-sm" onclick="return confirm('Are you sure you want to decline?')">
+                                <i class="fas fa-times-circle me-2"></i> Decline
+                            </button>
+                        </form>
+                    </div>
+                {% elif allocation.status == 'Accepted' %}
+                    <div class="alert alert-success d-inline-block px-5 mb-3">
+                        <i class="fas fa-check-circle me-2"></i> Allocation Accepted
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-hotel fa-4x text-light-emphasis"></i>
+            </div>
+            <h3 class="fw-bold">No Allocation Yet</h3>
+            <p class="text-muted">The student housing department is currently processing applications.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h3 class="mb-0 fw-bold"><i class="fas fa-university me-2"></i>Residence Registration</h3>
+                    <p class="mb-0 small">Ensure all details match your formal DUT registration.</p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="" enctype="multipart/form-data" id="registrationForm">
+                        {{ form.hidden_tag() }}
+
+                        <h5 class="text-primary border-bottom pb-2 mb-3">1. Personal Identification</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                {{ form.student_number.label(class="form-label fw-bold") }}
+                                {{ form.student_number(class="form-control " + ("is-invalid" if form.student_number.errors else ""), placeholder="8 digits") }}
+                                {% for error in form.student_number.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.student_id.label(class="form-label fw-bold") }}
+                                {{ form.student_id(class="form-control " + ("is-invalid" if form.student_id.errors else ""), placeholder="13-digit SA ID") }}
+                                {% for error in form.student_id.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.cell_number.label(class="form-label fw-bold") }}
+                                {{ form.cell_number(class="form-control " + ("is-invalid" if form.cell_number.errors else ""), placeholder="0123456789") }}
+                                {% for error in form.cell_number.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.full_names.label(class="form-label fw-bold") }}
+                                {{ form.full_names(class="form-control") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.surname.label(class="form-label fw-bold") }}
+                                {{ form.surname(class="form-control") }}
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                {{ form.age.label(class="form-label fw-bold") }}
+                                {{ form.age(class="form-control") }}
+                            </div>
+                            <div class="col-md-8">
+                                {{ form.gender.label(class="form-label d-block fw-bold") }}
+                                {% for subfield in form.gender %}
+                                    <div class="form-check form-check-inline mt-2">
+                                        {{ subfield(class="form-check-input") }}
+                                        {{ subfield.label(class="form-check-label") }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <h5 class="text-primary border-bottom pb-2 mb-3">2. Next of Kin</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                {{ form.nok_name.label(class="form-label fw-bold") }}
+                                {{ form.nok_name(class="form-control") }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.nok_relationship.label(class="form-label fw-bold") }}
+                                {{ form.nok_relationship(class="form-control") }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.nok_cell.label(class="form-label fw-bold") }}
+                                {{ form.nok_cell(class="form-control") }}
+                            </div>
+                        </div>
+
+                        <h5 class="text-primary border-bottom pb-2 mb-3">3. Location & Campus</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                {{ form.home_address.label(class="form-label fw-bold") }}
+                                {{ form.home_address(class="form-control") }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.province.label(class="form-label fw-bold") }}
+                                {{ form.province(class="form-select") }} 
+                                {% if form.province.errors %}
+                                    {% for error in form.province.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4 p-3 bg-light rounded shadow-sm border">
+                            <label class="form-label fw-bold d-block">Preferred Campus:</label>
+                            <div class="row">
+                                {% for subfield in form.campus %}
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <div class="form-check small">
+                                            {{ subfield(class="form-check-input") }}
+                                            {{ subfield.label(class="form-check-label") }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <h5 class="text-primary border-bottom pb-2 mb-3">4. Academic Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.faculty.label(class="form-label fw-bold") }}
+                                {{ form.faculty(id="faculty", class="form-select", onchange="updateQuals()") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.level_of_study.label(class="form-label fw-bold") }}
+                                {{ form.level_of_study(class="form-select") }}
+                            </div>
+                        </div>
+
+                        {{ form.qualification(type="hidden", id="selected_qualification_input") }}
+
+                        <div id="qualification-section" class="mb-4 p-3 border rounded bg-white shadow-sm" style="display:none;">
+                            <label class="form-label text-primary fw-bold">Select Specific Qualification:</label>
+                            <div id="quals-container" class="qualification-group mt-2">
+                                </div>
+                        </div>
+
+                        <h5 class="text-success border-bottom pb-2 mb-3">5. Identity Verification</h5>
+                        <div class="row align-items-center bg-light p-3 rounded mb-4 border">
+                            <div class="col-md-4 text-center">
+                                <img id="face-preview" src="https://i.ibb.co/V3V7FkC/image-0.png" class="img-thumbnail rounded-circle mb-2 shadow-sm" style="width: 140px; height: 140px; object-fit: cover;">
+                                <div id="scan-badge" class="d-block badge bg-secondary">Waiting for Photo...</div>
+                            </div>
+                            <div class="col-md-8">
+                                {{ form.profile_picture.label(class="form-label fw-bold") }}
+                                {{ form.profile_picture(id="profile_picture", class="form-control mb-2", onchange="previewFile()") }}
+                                <div id="scan-status" class="alert alert-secondary py-1 px-2 small mb-0">Identity photo required for biometric matching.</div>
+                            </div>
+                        </div>
+
+                        {{ form.submit(id="submit-btn", class="btn btn-primary w-100 btn-lg shadow", disabled=True) }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const qualificationsMap = {
+    "accounting": [
+        "Higher Cert. ICT", "Diploma in Accounting", "Diploma in Internal Auditing", "Diploma in Management Accounting", "Diploma in Taxation",
+        "Diploma in ICT: Application Development", "Diploma in ICT: Business Analysis", "Diploma in Library and Information Studies",
+        "Bachelor of ICT: Internet of Things", "Advanced Diploma in Accounting", "Advanced Diploma in Information Communication Technology", "Advanced Diploma in Business Intelligence",
+        "Postgraduate Diploma in Accounting", "Bachelor of ICT Honours", "Master of Accounting", "Master of Information Technology",
+        "Doctor of Philosophy in Accounting", "Doctor of Philosophy in Information Systems"
+    ],
+    "applied": [
+        "Higher Certificate in Sport Management Science", "Diploma in Analytical Chemistry", "Diploma in Clothing Management",
+        "Diploma in Consumer Sciences in Food & Nutrition", "Diploma in Nautical Studies", "Diploma in Shipping and Logistics",
+        "Bachelor of Applied Science in Biotechnology", "Bachelor of Applied Science in Industrial Chemistry",
+        "Bachelor of Sport Science and Management", "Bachelor of Applied Science Honours", "Master of Applied Science",
+        "Doctor of Philosophy in Applied Sciences"
+    ],
+    "arts": [
+        "Diploma in Drama", "Diploma in Fashion", "Diploma in Fine Art", "Diploma in Interior Design",
+        "Diploma in Jewellery Design and Manufacture", "Diploma in Language Practice", "Bachelor of Journalism",
+        "Bachelor of Applied Arts in Screen Arts and Technology", "Bachelor of Design in Visual Communication Design",
+        "Master of Applied Arts", "Doctor of Philosophy in Visual and Performing Arts"
+    ],
+    "engineering": [
+        "Diploma in Engineering Technology (Civil/Mechanical/Electrical)", "Diploma in Built Environment in Construction Studies",
+        "Bachelor of Engineering Technology (Chemical/Civil/Electronic/Industrial/Mechanical/Power)",
+        "Bachelor of the Built Environment (Architecture/Construction/Geomatics/Urban Planning)",
+        "Bachelor of Engineering Technology Honours", "Master of Engineering (MEng)", "Doctor of Engineering (DEng)"
+    ],
+    "health": [
+        "Higher Certificate in Dental Assisting", "Diploma in Somatology", "Bachelor of Nursing",
+        "Bachelor of Health Sciences (Clinical Tech/Emergency Medical Care/Homoeopathy/Medical Lab Science/Radiography)",
+        "Master of Health Sciences", "Doctor of Chiropractic", "Doctor of Philosophy in Health Sciences"
+    ],
+    "management": [
+        "Higher Certificate in Business Administration", "Diploma in Business Administration", "Diploma in HR Management",
+        "Diploma in Marketing", "Diploma in Public Relations & Communication", "Diploma in Retail Management",
+        "Advanced Diploma in Management Sciences", "Postgraduate Diploma in Management Sciences",
+        "Master of Management Sciences", "Master of Business Administration (MBA)", "Doctor of Philosophy in Management Sciences"
+    ]
+};
+
+function updateQuals() {
+    const facultyValue = document.getElementById('faculty').value;
+    const section = document.getElementById('qualification-section');
+    const container = document.getElementById('quals-container');
+    
+    container.innerHTML = '';
+    
+    if (facultyValue && qualificationsMap[facultyValue]) {
+        section.style.display = 'block';
+        qualificationsMap[facultyValue].forEach((qual, index) => {
+            const div = document.createElement('div');
+            div.className = 'form-check mb-2';
+            div.innerHTML = `
+                <input class="form-check-input qual-radio" type="radio" name="qual_choice" value="${qual}" id="q_${index}" required onclick="saveQualValue(this.value)">
+                <label class="form-check-label small" for="q_${index}">${qual}</label>
+            `;
+            container.appendChild(div);
+        });
+    } else {
+        section.style.display = 'none';
+    }
+}
+
+function saveQualValue(val) {
+    document.getElementById('selected_qualification_input').value = val;
+}
+
+function previewFile() {
+    const preview = document.getElementById('face-preview');
+    const file = document.getElementById('profile_picture').files[0];
+    const status = document.getElementById('scan-status');
+    const badge = document.getElementById('scan-badge');
+    const submitBtn = document.getElementById('submit-btn');
+    const reader = new FileReader();
+
+    reader.onloadend = function () {
+        preview.src = reader.result;
+        status.className = "alert alert-success py-1 px-2 small mb-0 mt-2";
+        status.innerHTML = '<i class="fas fa-check-circle me-1"></i>Photo Uploaded Successfully.';
+        badge.className = "badge bg-success mt-1";
+        badge.innerText = "Verified Headshot";
+        submitBtn.disabled = false; 
+    }
+
+    if (file) {
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+{% endblock %}

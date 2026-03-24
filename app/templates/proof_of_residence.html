@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DUT Proof of Residence - {{ current_user.student_number }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f7f6; color: #333; }
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 25mm 20mm;
+            margin: 10mm auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-family: "Segoe UI", Arial, sans-serif;
+            position: relative;
+        }
+        .header-img {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .doc-date {
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+        .doc-recipient {
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+        .content-table { 
+            width: 100%; 
+            margin-top: 20px; 
+            margin-bottom: 30px;
+            font-size: 14px; 
+        }
+        .content-table td { padding: 5px 0; vertical-align: top; }
+        .content-table td:first-child { font-weight: bold; width: 35%; }
+        
+        .footer-info {
+            position: absolute;
+            bottom: 40px;
+            left: 20mm;
+            right: 20mm;
+            text-align: left;
+            font-size: 11px;
+            color: #444;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .values-text {
+            font-size: 9px;
+            text-transform: lowercase;
+            color: #777;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+        .envision-logo {
+            float: right;
+            width: 120px;
+            margin-top: -10px;
+        }
+
+        @media print {
+            body { background: white; }
+            .a4-page { margin: 0; box-shadow: none; width: 100%; border: none; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="text-center my-4 no-print">
+        <div class="btn-group shadow">
+            <button onclick="window.print()" class="btn btn-dark">
+                <i class="fas fa-print me-2"></i> Print / Save as PDF
+            </button>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="a4-page">
+        <img src="https://tse2.mm.bing.net/th/id/OIP.uqo0unnsI4tFTazLecmfFAHaCd?rs=1&pid=ImgDetMain" alt="DUT Student Housing Header" class="header-img">
+
+        <div class="doc-date">{{ date }}</div>
+        
+        <div class="doc-recipient">TO WHOM IT MAY CONCERN</div>
+
+        <p>This serves to confirm that:</p>
+
+        <table class="content-table">
+            <tr>
+                <td>FULL NAME OF STUDENT</td>
+                <td>: {{ current_user.full_names or current_user.username }}</td>
+            </tr>
+            <tr>
+                <td>IDENTITY NUMBER</td>
+                <td>: {{ current_user.id_number or 'N/A' }}</td>
+            </tr>
+            <tr>
+                <td>STUDENT NUMBER</td>
+                <td>: {{ current_user.student_number }}</td>
+            </tr>
+        </table>
+
+        <p>Is a registered student of the Durban University of Technology and resides at:</p>
+
+        {% if alloc %}
+            <table class="content-table">
+                <tr>
+                    <td>NAME OF RESIDENCE</td>
+                    <td>: {{ alloc.listing.name }}</td> 
+                </tr>
+                <tr>
+                    <td>ROOM NUMBER</td>
+                    <td>: {{ alloc.room_number }}</td> 
+                </tr>
+                <tr>
+                    <td>FULL ADDRESS</td>
+                    <td>: {{ alloc.listing.address }}</td>
+                </tr>
+            </table>
+        {% else %}
+            <div class="alert alert-warning py-2">
+                <strong>Status:</strong> No active residence allocation found.
+            </div>
+        {% endif %}
+
+        <div style="margin-top: 40px;">
+            <p>We trust that the above meets with your requirements.</p>
+            <p>Thank you.</p>
+            
+            <div style="margin-top: 40px; font-weight: bold; text-transform: uppercase; font-size: 13px;">
+                DUT student housing & res life<br>
+                ADMINISTRATIVE OFFICER<br>
+                STUDENT HOUSING DEPARTMENT
+            </div>
+        </div>
+
+        <div class="footer-info">
+            <img src="https://tse3.mm.bing.net/th/id/OIP.GfiMVDzE7rxH_QAFuUmh4gHaBE" alt="Envision 2030" class="envision-logo">
+            <div>
+                PO Box 47753, GREYVILLE, 4023 - Tel +27 31 373 2217<br>
+                PO Box 1334, Durban, 4000 South Africa | <a href="http://www.dut.ac.za" style="color: inherit; text-decoration: none;">www.dut.ac.za</a>
+            </div>
+            <div class="values-text">
+                transparency honesty integrity respect accountability fairness professionalism commitment compassion excellence<br>
+                <strong>CREATIVE. DISTINCTIVE. IMPACTFUL.</strong>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body { background-color: #f4f6f9; }
+    .portal-card {
+        background: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        padding: 30px 15px;
+        text-align: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: block;
+        height: 100%;
+        position: relative;
+    }
+    .portal-card:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        transform: translateY(-5px);
+        border-color: #1e40af;
+    }
+    .portal-title {
+        color: #1e40af;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+    .portal-icon {
+        font-size: 3.5rem; 
+        margin-bottom: 20px;
+        display: block;
+    }
+    .icon-blue { color: #3b82f6; }
+    .icon-orange { color: #f59e0b; }
+    .icon-gray { color: #6b7280; }
+    .icon-green { color: #10b981; }
+
+    .portal-status {
+        font-size: 0.85rem;
+        color: #4b5563;
+        font-weight: 600;
+        background: #f8fafc;
+        padding: 5px 10px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+    .status-alert { background: #fee2e2; color: #dc2626; }
+    
+    .table-card { border-radius: 12px; overflow: hidden; }
+    
+    /* Search Bar Styling */
+    .search-container {
+        max-width: 400px;
+    }
+    .search-container .form-control {
+        border-radius: 20px;
+        padding-left: 40px;
+    }
+    .search-container .fa-search {
+        position: absolute;
+        left: 15px;
+        top: 10px;
+        color: #6b7280;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-dark">Admin Control Center <i class="fas fa-user-shield ms-2 fs-5 text-primary"></i></h2>
+            <p class="text-muted">Manage residence allocations and student records</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <div class="col">
+            <a href="{{ url_for('main.add_residence') }}" class="portal-card">
+                <div class="portal-title">Residences</div>
+                <i class="fas fa-hotel portal-icon icon-blue"></i>
+                <div class="portal-status text-muted">{{ total_res }} Total Buildings</div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{{ url_for('main.admin_allocate') }}" class="portal-card">
+                <div class="portal-title">Allocations</div>
+                <i class="fas fa-bed portal-icon icon-orange"></i>
+                <div class="portal-status {% if pending > 0 %}status-alert{% else %}text-muted{% endif %}">
+                    <i class="fas fa-clock me-1"></i> {{ pending }} Pending Apps
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="#allocations" class="portal-card">
+                <div class="portal-title">System Users</div>
+                <i class="fas fa-users-gear portal-icon icon-gray"></i>
+                <div class="portal-status text-muted">Manage Records</div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="#" class="portal-card">
+                <div class="portal-title">Reports</div>
+                <i class="fas fa-chart-pie portal-icon icon-green"></i>
+                <div class="portal-status text-muted">View Occupancy</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row mt-5 pt-4" id="allocations">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 table-card">
+                <div class="card-header bg-white pt-4 pb-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div>
+                        <h5 class="mb-0 fw-bold" style="color: #0056b3;">
+                            <i class="fas fa-users me-2"></i>Recently Registered Students
+                        </h5>
+                        <p class="text-muted mb-0 small mt-1">Review student profiles and housing eligibility.</p>
+                    </div>
+                    
+                    <div class="search-container position-relative flex-grow-1">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="studentSearch" class="form-control" placeholder="Search by name, email or student no...">
+                    </div>
+
+                    <span class="badge bg-primary rounded-pill">{{ users|length }} Total Students</span>
+                </div>
+                
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="studentTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Student Name</th>
+                                    <th>Email</th>
+                                    <th>Student No.</th>
+                                    <th>Campus</th>
+                                    <th class="text-center">Profile</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm me-3">
+                                                {% if user.image_file %}
+                                                    <img src="{{ url_for('static', filename='uploads/profile_pics/' + user.image_file) }}" 
+                                                         class="rounded-circle shadow-sm" width="38" height="38" 
+                                                         style="object-fit: cover; border: 2px solid #fff;">
+                                                {% else %}
+                                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px;">
+                                                        <i class="fas fa-user text-secondary"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <span class="fw-bold text-dark">{{ user.username }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                                    <td><code class="text-primary fw-bold">{{ user.student_number or '---' }}</code></td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">{{ user.campus or 'N/A' }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ url_for('main.student_profile', user_id=user.id) }}" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm">
+                                            <i class="fas fa-eye me-1"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fas fa-folder-open d-block fs-1 mb-2"></i>
+                                        No students registered in the database yet.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('studentSearch').addEventListener('keyup', function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll('#studentTable tbody tr');
+    
+    rows.forEach(row => {
+        let text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}
