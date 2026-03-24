@@ -1,6 +1,3 @@
-import dns.resolver
-import smtplib
-import socket
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, SelectField, RadioField, TextAreaField
@@ -47,32 +44,6 @@ class RegistrationForm(FlaskForm):
 
         if domain not in allowed_domains:
             raise ValidationError('Registration is restricted to @dut4life.ac.za or @dut.ac.za addresses.')
-
-        # External Outlook/Office 365 Existence Check
-        try:
-            # 1. Find the Mail Exchange (MX) record for the domain
-            records = dns.resolver.resolve(domain, 'MX')
-            mx_record = str(records[0].exchange)
-
-            # 2. Connect to the Outlook/Institutional mail server
-            server = smtplib.SMTP(mx_record, 25, timeout=10)
-            server.helo(socket.getfqdn())
-            server.mail('verify@studenthousing.portal') # Internal sender ID
-            
-            # 3. Ask the server if the recipient mailbox exists (RCPT TO)
-            code, message = server.rcpt(str(email.data))
-            server.quit()
-
-            # SMTP Code 250 means the mailbox was found and is active
-            if code != 250:
-                raise ValidationError('This email address was not found on the university Outlook server. Please check for typos.')
-        
-        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
-            raise ValidationError('Could not verify the university mail server.')
-        except Exception:
-            # Fallback: If the server blocks the handshake but the domain is correct, 
-            # we allow it to prevent blocking valid users during server downtime.
-            pass
 
 # 2. Login
 class LoginForm(FlaskForm):
