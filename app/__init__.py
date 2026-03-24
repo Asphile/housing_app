@@ -79,11 +79,16 @@ def create_app():
 
         @login_manager.user_loader
         def load_user(user_id):
-            return User.query.get(int(user_id))
+            try:
+                return User.query.get(int(user_id))
+            except Exception as e:
+                app.logger.error(f"Error loading user {user_id}: {e}")
+                return None
             
         # Optional: Creates the database file if it doesn't exist
         # db.create_all() 
 
+    app.logger.info("Flask app created successfully")
     return app
 
 # Create app instance for production (Render/Gunicorn)

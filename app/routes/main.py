@@ -30,11 +30,16 @@ def save_image(form_picture, folder):
 @main.route('/')
 def index():
     """System entry point. Handles authenticated redirection to maintain session flow."""
-    if current_user.is_authenticated:
-        if current_user.email == 'studenthousing@dut4life.ac.za':
-            return redirect(url_for('main.admin_dashboard'))
-        return redirect(url_for('main.dashboard'))
-    return render_template('index.html')
+    try:
+        if current_user.is_authenticated:
+            if current_user.email == 'studenthousing@dut4life.ac.za':
+                return redirect(url_for('main.admin_dashboard'))
+            return redirect(url_for('main.dashboard'))
+        return render_template('index.html')
+    except Exception as e:
+        current_app.logger.error(f"Error in index route: {e}")
+        # Fallback to showing index page if there's any error
+        return render_template('index.html')
 
 @main.route('/health')
 def health():
@@ -44,34 +49,48 @@ def health():
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    # Check if admin is logging in
-    if current_user.email == 'studenthousing@dut4life.ac.za':
-        return redirect(url_for('main.admin_dashboard'))
+    try:
+        # Check if admin is logging in
+        if current_user.email == 'studenthousing@dut4life.ac.za':
+            return redirect(url_for('main.admin_dashboard'))
 
-    has_prefs = RoommatePreferences.query.filter_by(user_id=current_user.id).first() is not None
-    active_app = RoomApplication.query.filter_by(user_id=current_user.id).first()
-    allocation = Allocation.query.filter_by(user_id=current_user.id).first()
-    
-    user_img = current_user.image_file if current_user.image_file else 'default.jpg'
-    image_file = url_for('static', filename=f'uploads/profile_pics/{user_img}')
-    
-    return render_template('dashboard.html', 
-                            has_preferences=has_prefs,
-                            active_app=active_app,
-                            allocation=allocation,
-                            image_file=image_file)
+        has_prefs = RoommatePreferences.query.filter_by(user_id=current_user.id).first() is not None
+        active_app = RoomApplication.query.filter_by(user_id=current_user.id).first()
+        allocation = Allocation.query.filter_by(user_id=current_user.id).first()
+        
+        user_img = current_user.image_file if current_user.image_file else 'default.jpg'
+        image_file = url_for('static', filename=f'uploads/profile_pics/{user_img}')
+        
+        return render_template('dashboard.html', 
+                                has_preferences=has_prefs,
+                                active_app=active_app,
+                                allocation=allocation,
+                                image_file=image_file)
+    except Exception as e:
+        current_app.logger.error(f"Error in dashboard route: {e}")
+        # Fallback to basic dashboard
+        return render_template('dashboard.html', 
+                                has_preferences=False,
+                                active_app=None,
+                                allocation=None,
+                                image_file=url_for('static', filename='uploads/profile_pics/default.jpg'))
 
 @main.route("/admin/dashboard")
 @login_required
 def admin_dashboard():
-    if current_user.email != 'studenthousing@dut4life.ac.za':
-        abort(403) 
-    
-    total_res = HousingListing.query.count()
-    pending = RoomApplication.query.filter_by(status='Pending').count()
-    all_students = User.query.filter(User.email != 'studenthousing@dut4life.ac.za').all()
-    
-    return render_template('admin_dashboard.html', total_res=total_res, pending=pending, users=all_students)
+    try:
+        if current_user.email != 'studenthousing@dut4life.ac.za':
+            abort(403) 
+        
+        total_res = HousingListing.query.count()
+        pending = RoomApplication.query.filter_by(status='Pending').count()
+        all_students = User.query.filter(User.email != 'studenthousing@dut4life.ac.za').all()
+        
+        return render_template('admin_dashboard.html', total_res=total_res, pending=pending, users=all_students)
+    except Exception as e:
+        current_app.logger.error(f"Error in admin dashboard route: {e}")
+        # Fallback to basic admin dashboard
+        return render_template('admin_dashboard.html', total_res=0, pending=0, users=[])
 
 # --- 2. Admin Management ---
 

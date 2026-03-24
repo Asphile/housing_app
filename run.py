@@ -33,6 +33,10 @@ if __name__ == '__main__' or is_production:
     logger.info("Initializing database...")
     with app.app_context():
         try:
+            # Import all models to ensure they're registered
+            from app.models.user import User
+            from app.models.housing import RoommatePreferences, HousingListing, RoomApplication, Allocation
+            
             db.create_all()
             logger.info("Database tables created successfully")
             print("\n" + "*"*30)
