@@ -72,9 +72,10 @@ def create_app():
 # Create app instance for production (Render/Gunicorn)
 app = create_app()
 
-# Initialize database on app startup
+# Initialize database on app startup (with error handling)
 with app.app_context():
     try:
         db.create_all()
+        print("✓ Database tables initialized")
     except Exception as e:
-        print(f"Database Initialization Error: {e}")
+        print(f"⚠ Database initialization warning: {e}")
