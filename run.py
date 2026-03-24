@@ -15,15 +15,21 @@ except Exception as e:
     # This ensures the process exits so you can see the traceback
     sys.exit(1)
 
-# --- DATABASE INITIALIZATION (works in both dev and production) ---
-with app.app_context():
-    try:
-        db.create_all()
-        print("\n" + "*"*30)
-        print("DATABASE SYNCED SUCCESSFULLY")
-        print("*"*30 + "\n")
-    except Exception as db_err:
-        print(f"Database Initialization Error: {db_err}")
+# --- DATABASE INITIALIZATION ---
+# Only initialize database when running in production (with Gunicorn)
+# or when explicitly running the script directly
+if __name__ == '__main__' or 'gunicorn' in os.environ.get('_', ''):
+    with app.app_context():
+        try:
+            db.create_all()
+            print("\n" + "*"*30)
+            print("DATABASE SYNCED SUCCESSFULLY")
+            print("*"*30 + "\n")
+        except Exception as db_err:
+            print(f"Database Initialization Error: {db_err}")
+            # Don't exit on DB errors in production - let the app try to start
+            if __name__ == '__main__':
+                sys.exit(1)
 
 if __name__ == '__main__':
     # We use '0.0.0.0' so you can test on local network devices
