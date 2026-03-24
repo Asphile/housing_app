@@ -62,6 +62,18 @@ def debug():
         <p>Time: {datetime.utcnow()}</p>
         """, 500
 
+@main.route('/health')
+def health():
+    """Health check endpoint for Render"""
+    try:
+        # Test database connection
+        from app.models.user import User
+        User.query.count()
+        return "Database connected", 200
+    except Exception as e:
+        current_app.logger.error(f"Health check failed: {e}")
+        return f"Database error: {str(e)}", 500
+
 @main.route('/dashboard')
 @login_required
 def dashboard():
