@@ -15,19 +15,17 @@ except Exception as e:
     # This ensures the process exits so you can see the traceback
     sys.exit(1)
 
-if __name__ == '__main__':
-    # --- AUTOMATIC DATABASE INITIALIZATION ---
-    # This part ensures all your SQLAlchemy models are turned into
-    # actual database tables in 'site.db' before the app starts.
-    with app.app_context():
-        try:
-            db.create_all()
-            print("\n" + "*"*30)
-            print("DATABASE SYNCED SUCCESSFULLY")
-            print("*"*30 + "\n")
-        except Exception as db_err:
-            print(f"Database Initialization Error: {db_err}")
+# --- DATABASE INITIALIZATION (works in both dev and production) ---
+with app.app_context():
+    try:
+        db.create_all()
+        print("\n" + "*"*30)
+        print("DATABASE SYNCED SUCCESSFULLY")
+        print("*"*30 + "\n")
+    except Exception as db_err:
+        print(f"Database Initialization Error: {db_err}")
 
+if __name__ == '__main__':
     # We use '0.0.0.0' so you can test on local network devices
     # and 'debug=True' to enable the interactive debugger
     port = int(os.environ.get('PORT', 5000))
