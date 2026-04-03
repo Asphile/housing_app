@@ -5,8 +5,8 @@
     /* --- Core Variables --- */
     :root {
         --theme-primary: #125DE6; 
-        --theme-secondary: #0EA5E9; /* Added for gradients */
-        --theme-text-dark: #0F172A; /* Slightly deeper for better contrast */
+        --theme-secondary: #0EA5E9; 
+        --theme-text-dark: #0F172A; 
         --theme-text-muted: #64748B; 
         --theme-bg-light: #F8FAFC; 
         --theme-white: #FFFFFF;
@@ -17,6 +17,30 @@
         background-color: var(--theme-bg-light);
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
         -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- Custom Navbar Styles --- */
+    .landing-navbar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--theme-border);
+        padding: 15px 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1030;
+    }
+    
+    .nav-link {
+        color: var(--theme-text-muted) !important;
+        font-weight: 600;
+        margin: 0 10px;
+        transition: color 0.3s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+        color: var(--theme-primary) !important;
     }
 
     /* --- Animations --- */
@@ -36,7 +60,7 @@
     /* --- Hero Section & Background Shapes --- */
     .hero-section {
         position: relative;
-        padding: 100px 0 140px 0;
+        padding: 160px 0 140px 0; /* Increased top padding to account for fixed navbar */
         overflow: hidden;
         background-color: var(--theme-white);
         border-bottom: 1px solid var(--theme-border);
@@ -123,6 +147,7 @@
         border: none;
         transition: all 0.3s ease;
         box-shadow: 0 4px 14px rgba(18, 93, 230, 0.15);
+        text-decoration: none;
     }
     .btn-filled:hover {
         background-color: #0c4bc4;
@@ -260,7 +285,41 @@
     }
 </style>
 
-<section class="hero-section">
+<nav class="navbar navbar-expand-lg landing-navbar shadow-sm">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
+            <img src="https://logowik.com/content/uploads/images/dut-durban-university-of-technology3991.jpg" alt="DUT Logo" height="50" style="object-fit: contain; margin-right: 15px;">
+            <span class="fw-bold fs-4" style="color: var(--theme-text-dark); letter-spacing: -0.5px;">Housing</span>
+        </a>
+        
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('main.index') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#about">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">Contact</a>
+                </li>
+                <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.dashboard') }}" class="btn-filled text-decoration-none" style="padding: 10px 24px;">Dashboard</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn-filled text-decoration-none" style="padding: 10px 24px;">Login</a>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="hero-section" id="home">
     <div class="container hero-content">
         <div class="row align-items-center">
             
@@ -328,7 +387,7 @@
     </div>
 </section>
 
-<section style="background-color: var(--theme-bg-light); padding: 100px 0;">
+<section id="about" style="background-color: var(--theme-bg-light); padding: 100px 0;">
     <div class="container">
         <div class="text-center mb-5 animate-up">
             <h2 class="fw-bold" style="color: var(--theme-text-dark);">Core System Features</h2>
@@ -367,11 +426,11 @@
     </div>
 </section>
 
-<footer class="clean-footer">
+<footer id="contact" class="clean-footer">
     <div class="container">
         <div class="row mb-5">
             <div class="col-lg-4 mb-4 mb-lg-0 pe-lg-5">
-                <h4 class="fw-bold" style="color: var(--theme-primary); letter-spacing: -1px;">DUT Housing</h4>
+                <img src="https://logowik.com/content/uploads/images/dut-durban-university-of-technology3991.jpg" alt="DUT Logo" height="60" style="object-fit: contain; margin-bottom: 15px;">
                 <p class="mt-3 text-muted" style="line-height: 1.6;">
                     Durban University of Technology.<br>
                     Providing a creative, distinctive, and impactful living environment to foster academic excellence.
